@@ -5,7 +5,7 @@
 import { spawn } from "node:child_process";
 import { DatabaseSync } from "node:sqlite";
 import { randomBytes } from "node:crypto";
-import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { createRequire } from "node:module";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
@@ -124,7 +124,22 @@ fixtureDb.prepare("INSERT INTO story_items VALUES (?, ?)").run(storyId, related[
 fixtureDb.exec("COMMIT");
 fixtureDb.close();
 
-const browser = await chromium.launch({ channel: "chrome", headless: !process.env.HEADED });
+// Google Chrome by default. DNA_CHROME_PATH, or a chromium on PATH when Chrome is missing, runs it on Linux boxes
+// that ship Chromium only.
+const onPath = (bin) =>
+  (process.env.PATH ?? "")
+    .split(":")
+    .map((dir) => join(dir, bin))
+    .find((p) => existsSync(p));
+const chromePath =
+  process.env.DNA_CHROME_PATH ||
+  (onPath("google-chrome") || onPath("google-chrome-stable")
+    ? undefined
+    : onPath("chromium") || onPath("chromium-browser"));
+const browser = await chromium.launch({
+  ...(chromePath ? { executablePath: chromePath } : { channel: "chrome" }),
+  headless: !process.env.HEADED,
+});
 const context = await browser.newContext({ viewport: { width: 1600, height: 1000 } });
 await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: base });
 const errors = [];
