@@ -20,6 +20,22 @@ test("the catalog defaults to Haiku 5.5 and every id resolves in pi-ai 1.1.0 Ope
   assert.throws(() => catalog.ref("made/up-model"), /Unknown model/);
 });
 
+test("with anthropicDirect, Claude models route to Anthropic and keep their catalog ids", () => {
+  const catalog = createModelCatalog({ provider: "openrouter", anthropicDirect: true });
+  assert.deepEqual(catalog.defaultModel, { provider: "anthropic", modelId: "claude-haiku-5-5" });
+  assert.deepEqual(catalog.ref("anthropic/claude-fable-5.1"), {
+    provider: "anthropic",
+    modelId: "claude-fable-5-1",
+  });
+  assert.deepEqual(catalog.ref("openai/gpt-6-luna"), {
+    provider: "openrouter",
+    modelId: "openai/gpt-6-luna",
+  });
+  for (const c of CATALOG) assert.equal(catalog.idOf(catalog.ref(c.id)), c.id);
+  assert.equal(catalog.info("anthropic/claude-haiku-5.5")?.provider, "anthropic");
+  assert.equal(catalog.list().length, 30);
+});
+
 test("the harness stores in WAL, answers on the faux model, and offers no bash or file tools", async () => {
   const t = tempDir();
   try {

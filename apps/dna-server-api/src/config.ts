@@ -15,6 +15,8 @@ export interface Config {
   configDir: string;
   promptsDir: string;
   provider: "openrouter" | "faux";
+  /** ANTHROPIC_API_KEY is set: Claude models go to Anthropic directly, the rest through OpenRouter. */
+  anthropicDirect: boolean;
   jevBackend: "auto" | "fixture" | "mock" | "openrouter" | "typesafe";
   /** auto | web | fallback | firecrawl | fixture; SearchService warns on anything else and searches the web. */
   searchMode: string;
@@ -67,6 +69,7 @@ export function loadConfig(argv = process.argv.slice(2), env = process.env): Con
     configDir: join(APP_DIR, "config"),
     promptsDir: join(APP_DIR, "prompt_engineering"),
     provider,
+    anthropicDirect: !!env.ANTHROPIC_API_KEY?.trim(),
     jevBackend:
       (env.JEV_BACKEND as Config["jevBackend"]) ?? (searchMode === "fixture" ? "fixture" : "auto"),
     searchMode,

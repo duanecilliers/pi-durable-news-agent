@@ -9,12 +9,14 @@ import { searchEngines } from "./print.ts";
 
 const KEYS = [
   "OPENROUTER_API_KEY",
+  "ANTHROPIC_API_KEY",
   "OPENAI_API_KEY",
   "FIRECRAWL_API_KEY",
   "DNA_CLIENT_TOKEN",
   "DNA_CRON_TOKEN",
 ];
 const OPTIONAL: Record<string, string> = {
+  ANTHROPIC_API_KEY: "missing, Claude models go through OpenRouter",
   OPENAI_API_KEY: "missing, cards without a source image show none",
   FIRECRAWL_API_KEY: "missing, search and page reads use the free engines",
 };

@@ -73,6 +73,7 @@ export async function openApp(config: Config, options: { log?: Logger } = {}): P
     provider: config.provider,
     installFaux: (models) => installScriptedFaux(models, fauxRules()),
     defaultModel: config.provider === "faux" ? undefined : config.model,
+    anthropicDirect: config.anthropicDirect,
   });
   const judge = new Judge({
     decide: decideFor(config),
@@ -139,9 +140,19 @@ export async function openApp(config: Config, options: { log?: Logger } = {}): P
   });
   const mainModel = async () => {
     const agent = await main.agent(ctx);
-    const id = agent.model?.modelId ?? catalog.defaultModel.modelId;
+    const id = catalog.idOf(agent.model ?? catalog.defaultModel);
     return { id, window: catalog.info(id)?.contextWindow ?? 1_000_000 };
   };
+  // The stored model keeps the provider it was saved with; follow ANTHROPIC_API_KEY being added or removed since.
+  if (catalog.provider !== "faux") {
+    const saved = (await main.agent(ctx)).model;
+    const id = saved && catalog.idOf(saved);
+    const routed = id && catalog.info(id) ? catalog.ref(id) : undefined;
+    if (saved && routed && routed.provider !== saved.provider) {
+      await main.configure({ model: routed }, ctx);
+      log.info("agent.rerouted", { model: id, provider: routed.provider });
+    }
+  }
   window = (await mainModel()).window;
   harness.harness.resume();
 

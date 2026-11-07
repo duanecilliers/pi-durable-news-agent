@@ -21,7 +21,7 @@ defaults:
   port: 4850
   node: 24
   code_dir: ~/pi-durable-news-agent  # outside ~/Documents, so cron needs no Full Disk Access on macOS
-  env_keys: [OPENROUTER_API_KEY, OPENAI_API_KEY, FIRECRAWL_API_KEY, DNA_CLIENT_TOKEN, DNA_CRON_TOKEN]
+  env_keys: [OPENROUTER_API_KEY, ANTHROPIC_API_KEY, OPENAI_API_KEY, FIRECRAWL_API_KEY, DNA_CLIENT_TOKEN, DNA_CRON_TOKEN]
   cron: "* * * * *"                  # the tick; the API's schedule (every 5 min by default, 1 to 60 or off) picks which ticks sweep
 
 devices:
