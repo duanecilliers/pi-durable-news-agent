@@ -31,7 +31,7 @@ export async function doctor(
   const envFile = join(repoRoot(), ".env");
   const env = existsSync(envFile) ? readFileSync(envFile, "utf8") : "";
   for (const key of KEYS) {
-    const present = new RegExp(`^${key}=.+`, "m").test(env) || !!process.env[key];
+    const present = new RegExp(`^${key}=[^\\s#]`, "m").test(env) || !!process.env[key]?.trim();
     checks.push({
       name: `${key} is set`,
       ok: present || key in OPTIONAL,
