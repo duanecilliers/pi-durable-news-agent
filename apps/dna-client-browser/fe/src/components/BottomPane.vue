@@ -1,16 +1,21 @@
 <script setup lang="ts">
 // A pane that flows bottom up like a chat: newest last, pinned to the bottom, with a jump button for new items.
+// newestFirst flips it into a feed: newest first, pinned to the top.
 import { ref } from "vue";
-import { ArrowDown } from "@lucide/vue";
+import { ArrowDown, ArrowUp } from "@lucide/vue";
 import { usePinned } from "../client/pin";
 
-const props = defineProps<{ count: number; label: string }>();
+const props = defineProps<{ count: number; label: string; newestFirst?: boolean }>();
 const scroller = ref<HTMLElement>();
-const { unseen, jump } = usePinned(scroller, () => props.count);
+const { unseen, jump } = usePinned(
+  scroller,
+  () => props.count,
+  props.newestFirst ? "top" : "bottom",
+);
 </script>
 
 <template>
-  <div class="bottom-pane">
+  <div class="bottom-pane" :class="{ 'newest-first': newestFirst }">
     <div ref="scroller" class="bottom-scroll" :aria-label="label">
       <div class="bottom-inner"><slot /></div>
     </div>
@@ -20,7 +25,7 @@ const { unseen, jump } = usePinned(scroller, () => props.count);
       :aria-label="`${unseen} new, jump to the newest`"
       @click="jump"
     >
-      <ArrowDown :size="15" />{{ unseen }} new
+      <component :is="newestFirst ? ArrowUp : ArrowDown" :size="15" />{{ unseen }} new
     </button>
   </div>
 </template>

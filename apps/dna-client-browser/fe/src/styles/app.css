@@ -274,6 +274,14 @@ h4 {
   gap: var(--s2);
   padding: var(--s1) var(--s3) var(--s3);
 }
+.newest-first .bottom-inner {
+  margin-top: 0;
+  padding: var(--s3) var(--s3) var(--s1);
+}
+.newest-first .new-items {
+  top: 12px;
+  bottom: auto;
+}
 .new-items {
   position: absolute;
   bottom: 12px;
